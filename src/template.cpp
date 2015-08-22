@@ -59,8 +59,13 @@ bool init() {
 
 void handleKeys( SDL_Event& e ) {
 	if( e.type == SDL_KEYDOWN ) {
+		auto& key = e.key.keysym;
+		if( key.mod & KMOD_CTRL ) cout << "ctrl, ";
+		if( key.mod & KMOD_ALT ) cout << "alt, ";
+		if( key.sym == SDLK_RETURN ) cout << "RETURN: " << endl;
 	}
 	if( e.type == SDL_TEXTINPUT ) {
+		cout << "Type: " << e.text.text << endl;
 	}
 }
 
@@ -95,7 +100,7 @@ void update() {
 		if( delta_ticks > 1000 ) {
 			{ // update fps string
 				ostringstream ss;
-				ss << frame_count << " FPS";
+				ss << frame_count << " FPS - You are a monster!";
 				SDL_Color fgcolor{ 0x00, 0xFF, 0x00, 0xFF };
 				SDL_Color bgcolor{ 0x00, 0x00, 0x00, 0xFF };
 				SDL_Surface* text = TTF_RenderText_Shaded(font, ss.str().c_str(), fgcolor, bgcolor);

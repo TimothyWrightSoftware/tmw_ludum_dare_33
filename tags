@@ -1,0 +1,56 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_PROGRAM_AUTHOR	Darren Hiebert	/dhiebert@users.sourceforge.net/
+!_TAG_PROGRAM_NAME	Exuberant Ctags	//
+!_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
+!_TAG_PROGRAM_VERSION	5.8	//
+COMMON_FILES	.\misc\build.bat	/^set COMMON_FILES=$/;"	v
+DirectoryOfThisScript	.\.ycm_extra_conf.py	/^def DirectoryOfThisScript():$/;"	f
+FLAGS	.\misc\build.bat	/^set FLAGS=-nologo -DSDL_ASSERT_LEVEL=2 -Oi -GR- -Gm- -MP -EHac -WX -W4 \/FC \/Zi \/MD \/wd4100 \/wd4201 \/wd4127 \/wd4244 \/wd4996 \/wd4189 \/wd4702 \/wd4512$/;"	v
+FONT_POINT_SIZE	.\src\template.cpp	/^const int FONT_POINT_SIZE = 16;$/;"	v
+FONT_POINT_SIZE	src/template.cpp	/^const int FONT_POINT_SIZE = 16;$/;"	v
+FlagsForFile	.\.ycm_extra_conf.py	/^def FlagsForFile( filename, **kwargs ):$/;"	f
+GetCompilationInfoForFile	.\.ycm_extra_conf.py	/^def GetCompilationInfoForFile( filename ):$/;"	f
+INCLUDE_FILES	.\misc\build.bat	/^set INCLUDE_FILES=-I%PROJECT%\\include -IC:\\game_dev\\3rd\\sdl\\dev\\SDL2-2.0.3\\include -IC:\\game_dev\\3rd\\sdl\\dev\\SDL2_ttf-2.0.12\\include$/;"	v
+IsHeaderFile	.\.ycm_extra_conf.py	/^def IsHeaderFile( filename ):$/;"	f
+LIBRARY_FILES	.\misc\build.bat	/^REM set LIBRARY_FILES=C:\\game_dev\\3rd\\sdl\\dev\\sdl2-2.0.3\\lib\\x64\\sdl2.lib C:\\game_dev\\3rd\\sdl\\dev\\sdl2-2.0.3\\lib\\x64\\sdl2main.lib C:\\game_dev\\3rd\\sdl\\dev\\sdl2_image-2.0.0\\lib\\x64\\sdl2_image.lib C:\\game_dev\\3rd\\glew-1.12.0\\lib\\release\\x64\\glew32.lib "C:\\program files (x86)\\microsoft sdks\\windows\\v7.1a\\lib\\x64\\glu32.lib" "C:\\program files (x86)\\microsoft sdks\\windows\\v7.1a\\lib\\x64\\opengl32.lib" "C:\\game_dev\\3rd\\freetype\\freetype-2.5.5\\cmake-build\\Release\\freetype.lib" "C:\\game_dev\\3rd\\SQUIRREL3\\x64\\Release\\squirrel.lib" "C:\\game_dev\\3rd\\SQUIRREL3\\x64\\Release\\sqstdlib.lib"$/;"	v
+LIBRARY_FILES	.\misc\build.bat	/^set LIBRARY_FILES=C:\\game_dev\\3rd\\sdl\\dev\\sdl2-2.0.3\\lib\\x64\\sdl2.lib C:\\game_dev\\3rd\\sdl\\dev\\sdl2-2.0.3\\lib\\x64\\sdl2main.lib C:\\game_dev\\3rd\\sdl\\dev\\SDL2_ttf-2.0.12\\lib\\x64\\SDL2_ttf.lib$/;"	v
+MakeRelativePathsInFlagsAbsolute	.\.ycm_extra_conf.py	/^def MakeRelativePathsInFlagsAbsolute( flags, working_directory ):$/;"	f
+SCREEN_HEIGHT	.\src\template.cpp	/^const int SCREEN_HEIGHT = 768;$/;"	v
+SCREEN_HEIGHT	src/template.cpp	/^const int SCREEN_HEIGHT = 768;$/;"	v
+SCREEN_WIDTH	.\src\template.cpp	/^const int SCREEN_WIDTH = 1024;$/;"	v
+SCREEN_WIDTH	src/template.cpp	/^const int SCREEN_WIDTH = 1024;$/;"	v
+SOURCE_EXTENSIONS	.\.ycm_extra_conf.py	/^SOURCE_EXTENSIONS = [ '.cpp', '.cxx', '.cc', '.c', '.m', '.mm' ]$/;"	v
+TEST_COMMON_FILES	.\misc\build.bat	/^set TEST_COMMON_FILES=$/;"	v
+close	.\src\template.cpp	/^void close() {$/;"	f
+close	src/template.cpp	/^void close() {$/;"	f
+compilation_database_folder	.\.ycm_extra_conf.py	/^compilation_database_folder = ''$/;"	v
+database	.\.ycm_extra_conf.py	/^  database = None$/;"	v
+database	.\.ycm_extra_conf.py	/^  database = ycm_core.CompilationDatabase( compilation_database_folder )$/;"	v
+delta_ticks	.\src\template.cpp	/^Uint32 delta_ticks = 0;$/;"	v
+delta_ticks	src/template.cpp	/^Uint32 delta_ticks = 0;$/;"	v
+flags	.\.ycm_extra_conf.py	/^flags = [$/;"	v
+font	.\src\template.cpp	/^TTF_Font *font = NULL;$/;"	v
+font	src/template.cpp	/^TTF_Font *font = NULL;$/;"	v
+fps_surface	.\src\template.cpp	/^SDL_Texture* fps_surface = NULL;$/;"	v
+fps_surface	src/template.cpp	/^SDL_Texture* fps_surface = NULL;$/;"	v
+frame_count	.\src\template.cpp	/^Uint32 frame_count = 0;$/;"	v
+frame_count	src/template.cpp	/^Uint32 frame_count = 0;$/;"	v
+handleKeys	.\src\template.cpp	/^void handleKeys( SDL_Event& e ) {$/;"	f
+handleKeys	src/template.cpp	/^void handleKeys( SDL_Event& e ) {$/;"	f
+init	.\src\template.cpp	/^bool init() {$/;"	f
+init	src/template.cpp	/^bool init() {$/;"	f
+last_ticks	.\src\template.cpp	/^Uint32 last_ticks = 0;$/;"	v
+last_ticks	src/template.cpp	/^Uint32 last_ticks = 0;$/;"	v
+os	.\.ycm_extra_conf.py	/^import os$/;"	i
+render	.\src\template.cpp	/^void render() {$/;"	f
+render	src/template.cpp	/^void render() {$/;"	f
+renderer	.\src\template.cpp	/^SDL_Renderer* renderer = NULL;$/;"	v
+renderer	src/template.cpp	/^SDL_Renderer* renderer = NULL;$/;"	v
+update	.\src\template.cpp	/^void update() {$/;"	f
+update	src/template.cpp	/^void update() {$/;"	f
+window	.\src\template.cpp	/^SDL_Window* window = NULL;$/;"	v
+window	src/template.cpp	/^SDL_Window* window = NULL;$/;"	v
+wmain	.\src\template.cpp	/^int wmain( int argc, wchar_t *argv[ ], wchar_t *envp[ ] ) {$/;"	f
+wmain	src/template.cpp	/^int wmain( int argc, wchar_t *argv[ ], wchar_t *envp[ ] ) {$/;"	f
+ycm_core	.\.ycm_extra_conf.py	/^import ycm_core$/;"	i
