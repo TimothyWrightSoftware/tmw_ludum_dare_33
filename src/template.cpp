@@ -1,15 +1,31 @@
 #include "SDL.h"
 #include "SDL_ttf.h"
+#include "SDL_image.h"
 #include "SDL_mixer.h"
+#define SQUTIL_IMPLEMENTATION
+#include "squtil.h"
 #include <iostream>
 #include <sstream>
 #include <string>
+#include <windows.h>
+
+#include <squirrel.h> 
+#include <sqstdblob.h>
+#include <sqstdio.h> 
+#include <sqstdaux.h> 
+#include <sqstdmath.h>
+#include <sqstdstring.h>
+#include <sqstdsystem.h>
 
 using namespace std;
-const int SCREEN_WIDTH = 1024;
-const int SCREEN_HEIGHT = 768;
+const int SCREEN_WIDTH = 640;
+const int SCREEN_HEIGHT = 480;
 const int FONT_POINT_SIZE = 16;
 const int BUFFER = 1024;
+
+// scripting stuff
+HSQUIRRELVM v; 
+FILETIME last_write;
 
 // rendering stuff
 SDL_Window* window = NULL;
@@ -27,11 +43,14 @@ Sint32 mouse_x = 0;
 Sint32 mouse_y = 0;
 SDL_Texture* mouse_surface = NULL;
 
-// Music stuff
-Mix_Music *music;
+// sound stuff
+Mix_Music *music = 0;
+Mix_Chunk* sample = 0;
 
-void print_init_flags(int flags)
-{
+// sprite stuff
+SDL_Texture* triangle_sprite = 0;
+
+void print_init_flags(int flags) {
 #define PFLAG(a) if(flags&MIX_INIT_##a) printf(#a " ")
 	PFLAG(FLAC);
 	PFLAG(MOD);
@@ -40,6 +59,82 @@ void print_init_flags(int flags)
 	if(!flags)
 		printf("None");
 	printf("\n");
+}
+
+void register_global_functions() {
+	//register_global_func( v, get_ticks, "get_ticks" );
+	//register_global_func( v, set_cursor_on, "set_cursor_on" );
+	//register_global_func( v, set_cursor, "set_cursor" );
+	//register_global_func( v, set_text, "set_text" );
+	//register_global_func( v, itoc, "itoc" );
+	//register_global_func( v, set_background, "set_background" );
+	//register_global_func( v, set_background_rect, "set_background_rect" );
+	//register_global_func( v, set_grid_border, "set_grid_border" );
+	//register_global_func( v, load_file, "load_file" );
+}
+
+void register_global_variables() {
+	//if( SQ_FAILED( register_global_variable( v, "grid_rows", grid_rows ) ) ) {
+		//SDL_assert( !"couldn't set grid_rows" );
+	//}
+	//if( SQ_FAILED( register_global_variable( v, "grid_cols", grid_cols ) ) ) {
+		//SDL_assert( !"couldn't set grid_rows" );
+	//}
+	//if( SQ_FAILED( register_global_variable( v, "KMOD_CTRL", KMOD_CTRL ) ) ) {
+		//SDL_assert( !"couldn't set KMOD_CTRL" );
+	//}
+	//if( SQ_FAILED( register_global_variable( v, "KMOD_SHIFT", KMOD_SHIFT ) ) ) {
+		//SDL_assert( !"couldn't set KMOD_SHIFT" );
+	//}
+	//if( SQ_FAILED( register_global_variable( v, "KMOD_ALT", KMOD_ALT ) ) ) {
+		//SDL_assert( !"couldn't set KMOD_ALT" );
+	//}
+}
+
+void reload_script() {
+	cout << "here we will reload the script" << endl;
+	if(SQ_FAILED(sqstd_dofile(v, _SC("../scripts/monster.nut"), SQFalse, SQTrue))) {
+		cout << "F'in problem loading script." << endl;
+	} 
+}
+
+void check_file( bool reload ) {  
+	FILETIME creation_time;
+	FILETIME last_access;
+	FILETIME new_last_write;
+	HANDLE file = CreateFile( "../scripts/monster.nut", 0, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL );
+	if( GetFileTime( file, &creation_time, &last_access, &new_last_write ) ) {
+		if( CompareFileTime( &new_last_write, &last_write ) > 0 ) {
+			last_write = new_last_write;
+			if( reload ) {
+				reload_script();
+			}
+		}
+	}
+
+}
+
+void setup_scripting() {
+
+	v = sq_open(1024); // creates a VM with initial stack size 1024 
+	sqstd_seterrorhandlers(v); //registers the default error handlers
+	sq_setprintfunc(v, printfunc,errorfunc); //sets the print function
+
+	sq_pushroottable( v );
+	register_global_functions();
+	register_global_variables();
+
+	sqstd_register_bloblib(v);
+	sqstd_register_iolib(v);
+	sqstd_register_systemlib(v);
+	sqstd_register_mathlib(v);
+	sqstd_register_stringlib(v);
+
+	if(SQ_FAILED(sqstd_dofile(v, _SC("../scripts/startup.nut"), SQFalse, SQTrue))) {
+		cout << "F'in problem loading startup.nut." << endl;
+	} 
+
+	check_file( false );
 }
 
 bool init() {
@@ -92,8 +187,6 @@ bool init() {
 		return false;
 	}
 
-	/* we play no samples, so deallocate the default 8 channels... */
-	Mix_AllocateChannels(0);
 	/* print out some info on the formats this run of SDL_mixer supports */
 	{
 		int i,n=Mix_GetNumChunkDecoders();
@@ -105,6 +198,7 @@ bool init() {
 		for(i=0; i<n; ++i)
 			printf("	%s\n", Mix_GetMusicDecoder(i));
 	}
+
 	/* print out some info on the audio device and stream */
 	int audio_rate,audio_channels;
 	Uint16 audio_format;
@@ -117,7 +211,7 @@ bool init() {
 
 	// load the MP3 file "music.mp3" to play as music
 	path = string( SDL_GetBasePath() );
-	path += "../res/asz.mp3";
+	path += "../res/proj1.wav";
 	music=Mix_LoadMUS( path.c_str() );
 	if(!music) {
 		cout << "Failed to load asz.mp3: " << Mix_GetError() << endl;
@@ -125,8 +219,26 @@ bool init() {
 	}	
 	if( Mix_PlayMusic( music, -1 ) == -1 ) {
 		cout << "Error starting music?!?" << endl;
+		return false;
 	}
 	Mix_VolumeMusic(MIX_MAX_VOLUME);
+
+	path = string( SDL_GetBasePath() );
+	path += "../res/blip.wav";
+	sample = Mix_LoadWAV( path.c_str() );
+	if( !sample ) {
+		cout << "error loading sample" << endl;
+		return false;
+	}
+
+	path = string( SDL_GetBasePath() );
+	path += "../res/white_triangle.png";
+	SDL_Surface* surface = IMG_Load( path.c_str() );
+	SDL_DestroyTexture( triangle_sprite );
+	triangle_sprite = SDL_CreateTextureFromSurface(renderer, surface);
+	SDL_FreeSurface(surface);
+
+	setup_scripting();
 
 	return success;
 
@@ -138,6 +250,9 @@ void handle_keys( SDL_Event& e ) {
 		if( key.mod & KMOD_CTRL ) cout << "ctrl, ";
 		if( key.mod & KMOD_ALT ) cout << "alt, ";
 		if( key.sym == SDLK_RETURN ) cout << "RETURN: " << endl;
+		if( key.sym == SDLK_SPACE ) {
+			Mix_PlayChannel( -1, sample, 0 );
+		}
 	}
 	if( e.type == SDL_TEXTINPUT ) {
 		cout << "Type: " << e.text.text << endl;
@@ -180,6 +295,7 @@ void close() {
 
     TTF_CloseFont(font);
 	Mix_FreeMusic(music);
+	Mix_FreeChunk( sample );
 	Mix_CloseAudio();
 	SDL_DestroyRenderer( renderer );
 	SDL_DestroyWindow( window );
@@ -203,6 +319,12 @@ void render() {
 		SDL_QueryTexture(mouse_surface, NULL, NULL, &w, &h);
 		SDL_Rect dest { 0, h*1, w, h };
 		SDL_RenderCopy( renderer, mouse_surface, NULL, &dest );
+	}
+	{ // draw white triangle
+		int w, h;
+		SDL_QueryTexture(triangle_sprite, NULL, NULL, &w, &h);
+		SDL_Rect dest { 200, 200, w, h };
+		SDL_RenderCopy( renderer, triangle_sprite, NULL, &dest );
 	}
 }
 
@@ -244,6 +366,7 @@ int wmain( int argc, wchar_t *argv[ ], wchar_t *envp[ ] ) {
 		SDL_Event e;
 		while( !quit ) {
 		
+			check_file( true );
 			while( SDL_PollEvent( &e ) != 0 ) {
 	
 				if( e.type == SDL_QUIT ) {
