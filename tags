@@ -4,6 +4,7 @@
 !_TAG_PROGRAM_NAME	Exuberant Ctags	//
 !_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
 !_TAG_PROGRAM_VERSION	5.8	//
+BACKGROUND_FRAMES	src/template.cpp	/^const int BACKGROUND_FRAMES = 13;$/;"	v
 BUFFER	src/mixer_test.cpp	12;"	d	file:
 BUFFER	src/template.cpp	/^const int BUFFER = 1024;$/;"	v
 COMMON_FILES	.\misc\build.bat	/^set COMMON_FILES=$/;"	v
@@ -27,7 +28,7 @@ LIBRARY_FILES	misc/build.bat	/^REM set LIBRARY_FILES=C:\\game_dev\\3rd\\sdl\\dev
 LIBRARY_FILES	misc/build.bat	/^set LIBRARY_FILES=C:\\game_dev\\3rd\\sdl\\dev\\sdl2-2.0.3\\lib\\x64\\sdl2.lib C:\\game_dev\\3rd\\sdl\\dev\\sdl2-2.0.3\\lib\\x64\\sdl2main.lib C:\\game_dev\\3rd\\sdl\\dev\\SDL2_ttf-2.0.12\\lib\\x64\\SDL2_ttf.lib C:\\game_dev\\3rd\\sdl\\dev\\SDL2_mixer-2.0.0\\lib\\x64\\SDL2_mixer.lib C:\\game_dev\\3rd\\sdl\\dev\\sdl2_image-2.0.0\\lib\\x64\\sdl2_image.lib C:\\game_dev\\3rd\\SQUIRREL3\\x64\\Release\\squirrel.lib C:\\game_dev\\3rd\\SQUIRREL3\\x64\\Release\\sqstdlib.lib $/;"	v
 MakeRelativePathsInFlagsAbsolute	.\.ycm_extra_conf.py	/^def MakeRelativePathsInFlagsAbsolute( flags, working_directory ):$/;"	f
 PFLAG	src/mixer_test.cpp	120;"	d	file:
-PFLAG	src/template.cpp	54;"	d	file:
+PFLAG	src/template.cpp	62;"	d	file:
 SCREEN_HEIGHT	.\src\template.cpp	/^const int SCREEN_HEIGHT = 768;$/;"	v
 SCREEN_HEIGHT	src/template.cpp	/^const int SCREEN_HEIGHT = 480;$/;"	v
 SCREEN_WIDTH	.\src\template.cpp	/^const int SCREEN_WIDTH = 1024;$/;"	v
@@ -38,6 +39,10 @@ TEST_COMMON_FILES	.\misc\build.bat	/^set TEST_COMMON_FILES=$/;"	v
 TEST_COMMON_FILES	misc/build.bat	/^set TEST_COMMON_FILES=$/;"	v
 W	src/mixer_test.cpp	13;"	d	file:
 Y	src/mixer_test.cpp	17;"	d	file:
+background	src/template.cpp	/^SDL_Texture* background[ BACKGROUND_FRAMES ] = {0};$/;"	v
+background_delta	src/template.cpp	/^Uint32 background_delta = 0;$/;"	v
+background_frame	src/template.cpp	/^int background_frame = 0;$/;"	v
+background_ticks	src/template.cpp	/^Uint32 background_ticks = 0;$/;"	v
 bits	src/mixer_test.cpp	/^int len=BUFFER*2*2, done=0, need_refresh=0, bits=0, which=0,$/;"	v
 black	src/mixer_test.cpp	/^Uint32 black,white;$/;"	v
 check_file	src/template.cpp	/^void check_file( bool reload ) {  $/;"	f
@@ -73,9 +78,11 @@ main	src/mixer_test.cpp	/^int main(int argc, char **argv)$/;"	f
 mouse_surface	src/template.cpp	/^SDL_Texture* mouse_surface = NULL;$/;"	v
 mouse_x	src/template.cpp	/^Sint32 mouse_x = 0;$/;"	v
 mouse_y	src/template.cpp	/^Sint32 mouse_y = 0;$/;"	v
+move_up	src/template.cpp	/^int move_up = 0;$/;"	v
 music	src/template.cpp	/^Mix_Music *music = 0;$/;"	v
 need_refresh	src/mixer_test.cpp	/^int len=BUFFER*2*2, done=0, need_refresh=0, bits=0, which=0,$/;"	v
 os	.\.ycm_extra_conf.py	/^import os$/;"	i
+poll_keys	src/template.cpp	/^void poll_keys() {$/;"	f
 position	src/mixer_test.cpp	/^	sample_size=0, position=0, rate=0;$/;"	v
 postmix	src/mixer_test.cpp	/^static void postmix(void *udata, Uint8 *_stream, int _len)$/;"	f	file:
 print_init_flags	src/mixer_test.cpp	/^void print_init_flags(int flags)$/;"	f

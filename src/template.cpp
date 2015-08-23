@@ -22,6 +22,7 @@ const int SCREEN_WIDTH = 640;
 const int SCREEN_HEIGHT = 480;
 const int FONT_POINT_SIZE = 16;
 const int BUFFER = 1024;
+const int BACKGROUND_FRAMES = 13;
 
 // scripting stuff
 HSQUIRRELVM v; 
@@ -49,6 +50,13 @@ Mix_Chunk* sample = 0;
 
 // sprite stuff
 SDL_Texture* triangle_sprite = 0;
+SDL_Texture* background[ BACKGROUND_FRAMES ] = {0};
+int background_frame = 0;
+Uint32 background_ticks = 0;
+Uint32 background_delta = 0;
+
+// monster stuff
+int move_up = 0;
 
 void print_init_flags(int flags) {
 #define PFLAG(a) if(flags&MIX_INIT_##a) printf(#a " ")
@@ -231,6 +239,24 @@ bool init() {
 		return false;
 	}
 
+	{ // load background animations
+		for( int i = 0; i < BACKGROUND_FRAMES; ++i ) {
+			ostringstream ss;
+			if( i < 10 )
+				ss << "../res/moving_grid_Animation 1_0" << i << ".png";
+			else
+				ss << "../res/moving_grid_Animation 1_" << i << ".png";
+			path = string( SDL_GetBasePath() );
+			path += ss.str(); 
+			SDL_Surface* surface = IMG_Load( path.c_str() );
+			SDL_assert( surface );
+			SDL_DestroyTexture( background[i] );
+			background[i]= SDL_CreateTextureFromSurface(renderer, surface);
+			SDL_FreeSurface(surface);
+			cout << "loaded: " << ss.str() << endl;
+		}
+	}
+
 	path = string( SDL_GetBasePath() );
 	path += "../res/white_triangle.png";
 	SDL_Surface* surface = IMG_Load( path.c_str() );
@@ -257,6 +283,11 @@ void handle_keys( SDL_Event& e ) {
 	if( e.type == SDL_TEXTINPUT ) {
 		cout << "Type: " << e.text.text << endl;
 	}
+}
+
+void poll_keys() {
+	const Uint8 *state = SDL_GetKeyboardState(NULL);
+	move_up = state[SDL_SCANCODE_UP];
 }
 
 void handle_mouse( SDL_Event& e ) {
@@ -305,7 +336,8 @@ void close() {
 
 void render() {
 	{ // clear screen
-		SDL_SetRenderDrawColor(renderer, 0x00, 0x00, 0x00, 0xFF);
+		SDL_SetRenderDrawColor(renderer, 0x99, 0x99, 0x99, 0xFF);
+		//SDL_SetRenderDrawColor(renderer, 0xFF, 0xFF, 0xFF, 0xFF);
 		SDL_RenderClear(renderer);
 	}
 	{ // draw FPS
@@ -326,12 +358,18 @@ void render() {
 		SDL_Rect dest { 200, 200, w, h };
 		SDL_RenderCopy( renderer, triangle_sprite, NULL, &dest );
 	}
+	{ // render background
+		//int w, h;
+		//SDL_QueryTexture(background[ background_frame ], NULL, NULL, &w, &h);
+		SDL_RenderCopy( renderer, background[ background_frame ], NULL, NULL );
+	}
 }
 
 void update() {
 
+	Uint32 current = SDL_GetTicks();
+
 	{ // update framerate
-		Uint32 current = SDL_GetTicks();
 		delta_ticks += current - last_ticks;
 		frame_count++;
 		if( delta_ticks > 1000 ) {
@@ -349,6 +387,22 @@ void update() {
 			delta_ticks -= 1000;
 		} 
 		last_ticks = current;
+	}
+
+	{ // update background
+
+		if( move_up ) {
+			background_delta += current - background_ticks;
+			//cout << "delta: " << background_delta << endl;
+			if( background_delta > 100 ) {
+				background_delta -= 100;
+				background_frame++;
+				if( background_frame == BACKGROUND_FRAMES ) {
+					background_frame = 0;
+				}
+			}
+		}
+		background_ticks = current;
 	}
 }
 
@@ -382,6 +436,7 @@ int wmain( int argc, wchar_t *argv[ ], wchar_t *envp[ ] ) {
 				handle_mouse( e );
 			}
 
+			poll_keys();
 			update();
 
 			render();
