@@ -468,6 +468,7 @@ int wmain( int argc, wchar_t *argv[ ], wchar_t *envp[ ] ) {
 		bool quit = false;
 
 		last_ticks = SDL_GetTicks();
+		srand( last_ticks );
 		delta_ticks = 0;
 		SDL_StartTextInput();
 		SDL_Event e;
