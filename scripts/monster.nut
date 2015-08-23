@@ -23,6 +23,8 @@ right_foot <- {
 }
 
 cars <- [];
+damage <- 123;
+update_score( "  $000  " );
 
 const screen_height = 480;
 
@@ -122,20 +124,26 @@ function update( current ) {
 		car.y -= car.h;
 		cars.append( car );
 	}
+	local asdf = damage;
 	cars = cars.filter( function( i, car ) {
 		car.y += 139 * delta / 1000.0;
 		if( car.y > screen_height ) {
 			return false;
 		} else {
 			if( contains( car, right_foot ) ) {
+				asdf = damage + 100;
+				update_score( " -$" + asdf + "  " );
 				return false;
 			}
 			if( contains( car, left_foot ) ) {
+				asdf = damage + 100;
+				update_score( " -$" + asdf + "  " );
 				return false;
 			}
 			return true;
 		}
 	});
+	damage = asdf;
 }
 
 function contains( a, b ) {

@@ -13,7 +13,7 @@ DirectoryOfThisScript	.\.ycm_extra_conf.py	/^def DirectoryOfThisScript():$/;"	f
 FLAGS	.\misc\build.bat	/^set FLAGS=-nologo -DSDL_ASSERT_LEVEL=2 -Oi -GR- -Gm- -MP -EHac -WX -W4 \/FC \/Zi \/MD \/wd4100 \/wd4201 \/wd4127 \/wd4244 \/wd4996 \/wd4189 \/wd4702 \/wd4512$/;"	v
 FLAGS	misc/build.bat	/^set FLAGS=-nologo -DSDL_ASSERT_LEVEL=2 -Oi -GR- -Gm- -MP -EHac -WX -W4 \/FC \/Zi \/MD \/wd4100 \/wd4201 \/wd4127 \/wd4244 \/wd4996 \/wd4189 \/wd4702 \/wd4512$/;"	v
 FONT_POINT_SIZE	.\src\template.cpp	/^const int FONT_POINT_SIZE = 16;$/;"	v
-FONT_POINT_SIZE	src/template.cpp	/^const int FONT_POINT_SIZE = 16;$/;"	v
+FONT_POINT_SIZE	src/template.cpp	/^const int FONT_POINT_SIZE = 22;$/;"	v
 FlagsForFile	.\.ycm_extra_conf.py	/^def FlagsForFile( filename, **kwargs ):$/;"	f
 GetCompilationInfoForFile	.\.ycm_extra_conf.py	/^def GetCompilationInfoForFile( filename ):$/;"	f
 H	src/mixer_test.cpp	14;"	d	file:
@@ -28,7 +28,7 @@ LIBRARY_FILES	misc/build.bat	/^REM set LIBRARY_FILES=C:\\game_dev\\3rd\\sdl\\dev
 LIBRARY_FILES	misc/build.bat	/^set LIBRARY_FILES=C:\\game_dev\\3rd\\sdl\\dev\\sdl2-2.0.3\\lib\\x64\\sdl2.lib C:\\game_dev\\3rd\\sdl\\dev\\sdl2-2.0.3\\lib\\x64\\sdl2main.lib C:\\game_dev\\3rd\\sdl\\dev\\SDL2_ttf-2.0.12\\lib\\x64\\SDL2_ttf.lib C:\\game_dev\\3rd\\sdl\\dev\\SDL2_mixer-2.0.0\\lib\\x64\\SDL2_mixer.lib C:\\game_dev\\3rd\\sdl\\dev\\sdl2_image-2.0.0\\lib\\x64\\sdl2_image.lib C:\\game_dev\\3rd\\SQUIRREL3\\x64\\Release\\squirrel.lib C:\\game_dev\\3rd\\SQUIRREL3\\x64\\Release\\sqstdlib.lib $/;"	v
 MakeRelativePathsInFlagsAbsolute	.\.ycm_extra_conf.py	/^def MakeRelativePathsInFlagsAbsolute( flags, working_directory ):$/;"	f
 PFLAG	src/mixer_test.cpp	120;"	d	file:
-PFLAG	src/template.cpp	58;"	d	file:
+PFLAG	src/template.cpp	61;"	d	file:
 SCREEN_HEIGHT	.\src\template.cpp	/^const int SCREEN_HEIGHT = 768;$/;"	v
 SCREEN_HEIGHT	src/template.cpp	/^const int SCREEN_HEIGHT = 480;$/;"	v
 SCREEN_WIDTH	.\src\template.cpp	/^const int SCREEN_WIDTH = 1024;$/;"	v
@@ -101,10 +101,12 @@ renderer	src/template.cpp	/^SDL_Renderer* renderer = NULL;$/;"	v
 s	src/mixer_test.cpp	/^SDL_Surface *s=NULL;$/;"	v
 sample	src/template.cpp	/^Mix_Chunk* sample = 0;$/;"	v
 sample_size	src/mixer_test.cpp	/^	sample_size=0, position=0, rate=0;$/;"	v
+score_texture	src/template.cpp	/^SDL_Texture* score_texture = 0;$/;"	v
 setup_scripting	src/template.cpp	/^void setup_scripting() {$/;"	f
 stream	src/mixer_test.cpp	/^Sint16 stream[2][BUFFER*2*2];$/;"	v
 update	.\src\template.cpp	/^void update() {$/;"	f
 update	src/template.cpp	/^void update() {$/;"	f
+update_score	src/template.cpp	/^SQInteger update_score( HSQUIRRELVM v ) {$/;"	f
 v	src/template.cpp	/^HSQUIRRELVM v; $/;"	v
 which	src/mixer_test.cpp	/^int len=BUFFER*2*2, done=0, need_refresh=0, bits=0, which=0,$/;"	v
 white	src/mixer_test.cpp	/^Uint32 black,white;$/;"	v

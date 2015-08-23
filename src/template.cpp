@@ -20,7 +20,7 @@
 using namespace std;
 const int SCREEN_WIDTH = 640;
 const int SCREEN_HEIGHT = 480;
-const int FONT_POINT_SIZE = 16;
+const int FONT_POINT_SIZE = 22;
 const int BUFFER = 1024;
 const int BACKGROUND_FRAMES = 13;
 
@@ -53,6 +53,9 @@ SDL_Texture* background[ BACKGROUND_FRAMES ] = {0};
 int background_frame = 0;
 Uint32 background_ticks = 0;
 Uint32 background_delta = 0;
+
+// game stuff
+SDL_Texture* score_texture = 0;
 
 void print_init_flags(int flags) {
 #define PFLAG(a) if(flags&MIX_INIT_##a) printf(#a " ")
@@ -114,10 +117,23 @@ SQInteger next_background( HSQUIRRELVM v ){
 	return 0;
 }
 
+SQInteger update_score( HSQUIRRELVM v ) {
+	const SQChar* score = 0;
+	sq_getstring( v, -1, &score );
+	SDL_Color fgcolor = { 0xFF, 0x33, 0x33, 0xFF };
+	SDL_Color bgcolor = { 0x33, 0x33, 0x33, 0xFF };
+	SDL_Surface* text = TTF_RenderText_Shaded(font, score, fgcolor, bgcolor);
+	SDL_DestroyTexture( score_texture );
+	score_texture = SDL_CreateTextureFromSurface(renderer, text);
+	SDL_FreeSurface(text);
+	return 0;
+}
+
 void register_global_functions() {
 	register_global_func( v, next_background, "next_background" );
 	register_global_func( v, prev_background, "prev_background" );
 	register_global_func( v, draw_rect, "draw_rect" );
+	register_global_func( v, update_score, "update_score" );
 }
 
 void register_global_variables() {
@@ -184,7 +200,7 @@ bool init() {
 		success = false;
 	}
 
-	window = SDL_CreateWindow( "You are a monster", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN );
+	window = SDL_CreateWindow( "I gotta go!!!", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN );
 	if( window == NULL ) {
 		cout << "Window could not be created! SDL Error: " << SDL_GetError() << endl;
 		success = false;
@@ -399,6 +415,12 @@ void render() {
 		sq_pushroottable( v );
 		sq_call( v, 1, SQFalse, SQTrue );// leave closure on stack
 		sq_pop( v, 1 ); // pop Coroutine and process
+	}
+	{ // render score
+		int w, h;
+		SDL_QueryTexture(score_texture, NULL, NULL, &w, &h);
+		SDL_Rect dest { 3, 3, w, h };
+		SDL_RenderCopy( renderer, score_texture, NULL, &dest );
 	}
 
 }
