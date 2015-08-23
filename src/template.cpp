@@ -56,6 +56,9 @@ Uint32 background_delta = 0;
 
 // game stuff
 SDL_Texture* score_texture = 0;
+SDL_Texture* belly_texture = 0;
+SDL_Texture* lfoot_texture = 0;
+SDL_Texture* rfoot_texture = 0;
 
 void print_init_flags(int flags) {
 #define PFLAG(a) if(flags&MIX_INIT_##a) printf(#a " ")
@@ -66,6 +69,39 @@ void print_init_flags(int flags) {
 	if(!flags)
 		printf("None");
 	printf("\n");
+}
+
+SQInteger draw_texture( HSQUIRRELVM v ){
+	SQInteger value;
+	SDL_Rect rect = {0};
+	SDL_Texture* texture = 0;
+	if( SQ_SUCCEEDED( sq_getinteger( v, -5, &value ) ) ) {
+		if( value == 1 ) {
+			texture = belly_texture;
+		}
+		if( value == 2 ) {
+			texture = rfoot_texture;
+		}
+		if( value == 3 ) {
+			texture = lfoot_texture;
+		}
+	}
+	if( SQ_SUCCEEDED( sq_getinteger( v, -4, &value ) ) ) {
+		rect.x = value;
+	}
+	if( SQ_SUCCEEDED( sq_getinteger( v, -3, &value ) ) ) {
+		rect.y = value;
+	}
+	if( SQ_SUCCEEDED( sq_getinteger( v, -2, &value ) ) ) {
+		rect.w = value;
+	}
+	if( SQ_SUCCEEDED( sq_getinteger( v, -1, &value ) ) ) {
+		rect.h = value;
+	}
+	if( texture ) {
+		SDL_RenderCopy( renderer, texture, NULL, &rect );
+	}
+	return 0;
 }
 
 SQInteger draw_rect( HSQUIRRELVM v ){
@@ -134,6 +170,7 @@ void register_global_functions() {
 	register_global_func( v, prev_background, "prev_background" );
 	register_global_func( v, draw_rect, "draw_rect" );
 	register_global_func( v, update_score, "update_score" );
+	register_global_func( v, draw_texture, "draw_texture" );
 }
 
 void register_global_variables() {
@@ -296,6 +333,33 @@ bool init() {
 			SDL_FreeSurface(surface);
 			cout << "loaded: " << ss.str() << endl;
 		}
+	}
+
+	{ // load belly
+		path = string( SDL_GetBasePath() );
+		path += "../res/belly.png";
+		SDL_Surface* surface = IMG_Load( path.c_str() );
+		SDL_assert( surface );
+		belly_texture = SDL_CreateTextureFromSurface(renderer, surface);
+		SDL_FreeSurface(surface);
+	}
+
+	{ // load l foot
+		path = string( SDL_GetBasePath() );
+		path += "../res/lfoot.png";
+		SDL_Surface* surface = IMG_Load( path.c_str() );
+		SDL_assert( surface );
+		lfoot_texture = SDL_CreateTextureFromSurface(renderer, surface);
+		SDL_FreeSurface(surface);
+	}
+
+	{ // load right foot
+		path = string( SDL_GetBasePath() );
+		path += "../res/rfoot.png";
+		SDL_Surface* surface = IMG_Load( path.c_str() );
+		SDL_assert( surface );
+		rfoot_texture = SDL_CreateTextureFromSurface(renderer, surface);
+		SDL_FreeSurface(surface);
 	}
 
 	setup_scripting();

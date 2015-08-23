@@ -24,15 +24,60 @@ right_foot <- {
 
 cars <- [];
 piss <-[];
-damage <- 123;
+explosion <- [];
+damage <- 0;
 update_score( "  $000  " );
+pause <- 0;
+is_paused <- false;
 
 piss_meter <- 0.0;
 piss_max <- 100.0;
+water_meter <-0.0;
+water_max <- 100.0;
 game_over <- false;
+made_it <- false;
+shore_line <- 0;
 
 const screen_width = 640;
 const screen_height = 480;
+
+function generate_explosion( x, y ) {
+	::is_paused = true;
+	if( explosion.len() == 0 ) {
+		for( local i = 0; i < 250; ++i ) {
+			local particle = {
+				x = 0,
+				y = 0,
+				c = 0,
+				dx = 0.0,
+				dy = 0.0,
+				t = 2.0,
+			};
+			explosion.append( particle );
+		}
+	}
+	foreach( i, v in explosion ) {
+		v.x = x;
+		v.y = y;
+		v.c = 0xFF;	
+		v.dx = (rand() / RAND_MAX.tofloat()) * 2.0 - 1.0;
+		v.dy = ( rand() / RAND_MAX.tofloat() ) * 2.0 - 1.0;
+		v.t = (rand() / RAND_MAX.tofloat()) * 2.0;
+	}
+}
+
+function generate_pee() {
+	for( local i = 0; i < 2000; ++i ) {
+		local pee = {
+			x = rand() % 40 + 300,
+			y = screen_height,
+			dx = (rand() % 100) * 0.08 - 4.0,
+			dy = (rand() % 100) * 0.4,
+			c = rand() % 32 + 192,
+		};	
+		piss.append( pee );
+	}	
+}
 
 function update( current ) {
 
@@ -40,6 +85,23 @@ function update( current ) {
 		background_ticks = current;
 	}
 	local delta = current - background_ticks;
+	if( made_it ) {
+		shore_line += 0.12 * delta;
+		if( shore_line >= screen_height ) {
+			if( !game_over ) {
+				generate_pee();
+			}
+			game_over = true;
+		}
+	} 
+	foreach( i, p in explosion ) {
+		if( p.t > 0 ) {
+			p.t -= 0.005 * delta;
+			p.x += p.dx;
+			p.y += p.dy;
+			p.c *= 0.95;
+		}
+	}
 	if( game_over ) {
 		piss = piss.filter( function( i, pee ) {
 			pee.x += pee.dx;
@@ -51,27 +113,36 @@ function update( current ) {
 			/*return pee.x > 0 && pee.x < screen_width && pee.y >0 && pee.y < screen_height;*/
 			return true;
 		});
-	} else { 
+	} 
+	/*if( !made_it ){ */
+	if( is_paused ) {
+		pause += 0.001 * delta;
+		if( pause > 1 ) {
+			pause = 0;
+			is_paused = false;
+		}
+	}
+
 		if( current - background_ticks > 20 ) {
 			delta = 20;	
 		}
-		/*piss_meter += 0.0020 * delta;*/ // <- this is the good one
-		piss_meter += 0.220 * delta;
-		if( piss_meter >= 100 ) {
+		piss_meter += 0.0020 * delta; // <- this is the good one
+		if( !made_it && piss_meter >= 100 ) {
+			if( !game_over )
+				generate_pee();
 			game_over = true;
-			for( local i = 0; i < 1000; ++i ) {
-				local pee = {
-					x = rand() % 40 + 300,
-					y = screen_height,
-					dx = (rand() % 100) * 0.04 - 2.0,
-					dy = (rand() % 100) * 0.4,
-					c = rand() % 32 + 192,
-				};	
-				piss.append( pee );
-			}	
 			return;
 		}
+
+		if( water_meter >= 100.0 ) {
+			made_it = true;
+		}
+		
+		if( is_paused ) delta = 0;
 		background_delta += delta;
+
+
+		water_meter += 0.0040 * delta; // <- this is the good one
 		if( background_delta > 100 ) {
 			background_delta -= 100;
 			if( true ) next_background();
@@ -146,40 +217,42 @@ function update( current ) {
 			}
 		}
 
-		if( cars.len() < 1 ) {
-		local car = {
-			x = rand() % 350 + 100, // between 100 and 450 - w
-			y = 0,
-			w = 30,
-			h = rand() % 5 == 0 ? 150 : 50,
-			r = 0xFF,
-			g = 0xFF,
-			b = 0xFF,
-		};
-		car.y -= car.h;
-		cars.append( car );
-	}
-	local asdf = damage;
-	cars = cars.filter( function( i, car ) {
-			car.y += 139 * delta / 1000.0;
+		if( cars.len() < 1 && !made_it ) {
+			local car = {
+				x = rand() % 350 + 100, // between 100 and 450 - w
+				y = 0,
+				w = 30,
+				h = rand() % 5 == 0 ? 150 : 50,
+				r = 0xFF,
+				g = 0xFF,
+				b = 0xFF,
+			};
+			car.y -= car.h;
+			cars.append( car );
+		}
+		local asdf = damage;
+		cars = cars.filter( function( i, car ) {
+			car.y += 165 * delta / 1000.0;
 			if( car.y > screen_height ) {
-			return false;
+				return false;
 			} else {
-			if( contains( car, right_foot ) ) {
-			asdf = damage + 100;
-			update_score( " -$" + asdf + "  " );
-			return false;
+				if( !right_foot.forward && contains( car, right_foot ) ) {
+					asdf = damage + rand() % 200 + 25;
+					update_score( " -$" + asdf + "  " );
+					generate_explosion( car.x + car.w, car.y + car.h );
+					return false;
+				}
+				if( !left_foot.forward && contains( car, left_foot ) ) {
+					asdf = damage + rand() % 200 + 25;
+					update_score( " -$" + asdf + "  " );
+					generate_explosion( car.x, car.y );
+					return false;
+				}
+				return true;
 			}
-			if( contains( car, left_foot ) ) {
-			asdf = damage + 100;
-			update_score( " -$" + asdf + "  " );
-			return false;
-			}
-			return true;
-			}
-			});
-	damage = asdf;
-	}
+		});
+		damage = asdf;
+		/*}*/
 }
 
 function contains( a, b ) {
@@ -188,31 +261,65 @@ function contains( a, b ) {
 	return true;
 }
 
-function render() {
+function reset_game() {
+	println( "In reset" );
+}
 
+function render() {
 	
 	// hide red dot
 	draw_rect( 320, 320, 50, 50, 0x99, 0x99, 0x99, 0xFF );
 
-	if( game_over ) {
-		foreach( i, pee in piss ) {
-			draw_rect( pee.x, pee.y, 10, 200, pee.c, pee.c, 0x00, 0xFF );
-		}
-		
-	} else { 
-		draw_rect( left_foot.x, left_foot.y, left_foot.w, left_foot.h, 0xFF, 0xFF, 0x00, 0x00 );
-		draw_rect( right_foot.x, right_foot.y, right_foot.w, right_foot.h, 0x00, 0xFF, 0x00, 0x00 );
+	if( !game_over ) {
 
 		foreach( i, car in cars ) {
 			draw_rect( car.x, car.y, car.w, car.h, car.r, car.g, car.b, 0xFF );
 		}
 
-		{ // draw piss meter
+		draw_texture( 3, left_foot.x, left_foot.y, 100, 400 );
+		draw_texture( 2, right_foot.x, right_foot.y, 100, 400 );
+
+		if( !made_it ) { // draw water meter
+			local range = (100 - water_meter) / water_max;
+			local p0 = range * 150;
+			local p1 = (1.0 - range) * 150;
+			draw_rect( 10, 200, 30, p0, 0x33, 0x33, 0x33, 0xFF );
+			draw_rect( 10 , 200 + p0, 30, p1, 0x55, 0x55, 0xFF, 0xFF );
+		}
+
+		if( !made_it ) { // draw piss meter
 			local range = (100 - piss_meter) / piss_max;
 			local p0 = range * 150;
 			local p1 = (1.0 - range) * 150;
 			draw_rect( 10, 40, 30, p0, 0x33, 0x33, 0x33, 0xFF );
 			draw_rect( 10 , 40 + p0, 30, p1, 0xFF, 0xFF, 0x00, 0xFF );
 		}
+
+		foreach( i, p in explosion ) {
+			if( p.t > 0 ) {
+				draw_rect( p.x, p.y, 2, 2, 0xFF, p.c, p.c, 0xFF );
+			}
+		}
+
 	}
+
+	if( made_it ) {
+		draw_rect( 0, 0, screen_width, shore_line, 0x55, 0x55, 0xFF, 0xFF );
+	} 
+
+	if( game_over ) {
+		foreach( i, pee in piss ) {
+			if( made_it ) {
+				draw_rect( pee.x, pee.y, 10, 200, 0x55, 0x55, pee.c, 0xFF );
+
+			} else {
+				draw_rect( pee.x, pee.y, 10, 200, pee.c, pee.c, 0x00, 0xFF );
+			}
+		}
+		
+	} 
+
+	// render belly
+	draw_texture( 1, 150, 300, 400, 200 );
+
 }
