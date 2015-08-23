@@ -49,14 +49,10 @@ Mix_Music *music = 0;
 Mix_Chunk* sample = 0;
 
 // sprite stuff
-SDL_Texture* triangle_sprite = 0;
 SDL_Texture* background[ BACKGROUND_FRAMES ] = {0};
 int background_frame = 0;
 Uint32 background_ticks = 0;
 Uint32 background_delta = 0;
-
-// monster stuff
-int move_up = 0;
 
 void print_init_flags(int flags) {
 #define PFLAG(a) if(flags&MIX_INIT_##a) printf(#a " ")
@@ -69,34 +65,68 @@ void print_init_flags(int flags) {
 	printf("\n");
 }
 
+SQInteger draw_rect( HSQUIRRELVM v ){
+	SQInteger value;
+	SDL_Rect rect = {0};
+	Uint8 r = 0, g = 0, b = 0, a = 0;
+	if( SQ_SUCCEEDED( sq_getinteger( v, -8, &value ) ) ) {
+		rect.x = value;
+	}
+	if( SQ_SUCCEEDED( sq_getinteger( v, -7, &value ) ) ) {
+		rect.y = value;
+	}
+	if( SQ_SUCCEEDED( sq_getinteger( v, -6, &value ) ) ) {
+		rect.w = value;
+	}
+	if( SQ_SUCCEEDED( sq_getinteger( v, -5, &value ) ) ) {
+		rect.h = value;
+	}
+	if( SQ_SUCCEEDED( sq_getinteger( v, -4, &value ) ) ) {
+		r = value;
+	}
+	if( SQ_SUCCEEDED( sq_getinteger( v, -3, &value ) ) ) {
+		g = value;
+	}
+	if( SQ_SUCCEEDED( sq_getinteger( v, -2, &value ) ) ) {
+		b = value;
+	}
+	if( SQ_SUCCEEDED( sq_getinteger( v, -1, &value ) ) ) {
+		a = value;
+	}
+	SDL_SetRenderDrawColor( renderer, r, g, b, a );
+	SDL_RenderFillRect( renderer, &rect );
+	return 0;
+}
+
+SQInteger prev_background( HSQUIRRELVM v ){
+	background_frame--;
+	if( background_frame < 0 ) {
+		background_frame = BACKGROUND_FRAMES - 1;
+	} 
+	return 0;
+}
+
+SQInteger next_background( HSQUIRRELVM v ){
+	background_frame++;
+	if( background_frame == BACKGROUND_FRAMES ) {
+		background_frame = 0;
+	} 
+	return 0;
+}
+
 void register_global_functions() {
-	//register_global_func( v, get_ticks, "get_ticks" );
-	//register_global_func( v, set_cursor_on, "set_cursor_on" );
-	//register_global_func( v, set_cursor, "set_cursor" );
-	//register_global_func( v, set_text, "set_text" );
-	//register_global_func( v, itoc, "itoc" );
-	//register_global_func( v, set_background, "set_background" );
-	//register_global_func( v, set_background_rect, "set_background_rect" );
-	//register_global_func( v, set_grid_border, "set_grid_border" );
-	//register_global_func( v, load_file, "load_file" );
+	register_global_func( v, next_background, "next_background" );
+	register_global_func( v, prev_background, "prev_background" );
+	register_global_func( v, draw_rect, "draw_rect" );
 }
 
 void register_global_variables() {
-	//if( SQ_FAILED( register_global_variable( v, "grid_rows", grid_rows ) ) ) {
-		//SDL_assert( !"couldn't set grid_rows" );
-	//}
-	//if( SQ_FAILED( register_global_variable( v, "grid_cols", grid_cols ) ) ) {
-		//SDL_assert( !"couldn't set grid_rows" );
-	//}
-	//if( SQ_FAILED( register_global_variable( v, "KMOD_CTRL", KMOD_CTRL ) ) ) {
-		//SDL_assert( !"couldn't set KMOD_CTRL" );
-	//}
-	//if( SQ_FAILED( register_global_variable( v, "KMOD_SHIFT", KMOD_SHIFT ) ) ) {
-		//SDL_assert( !"couldn't set KMOD_SHIFT" );
-	//}
-	//if( SQ_FAILED( register_global_variable( v, "KMOD_ALT", KMOD_ALT ) ) ) {
-		//SDL_assert( !"couldn't set KMOD_ALT" );
-	//}
+	if( SQ_FAILED( register_global_variable( v, "move_left", 0 ) ) ) {
+		SDL_assert( !"couldn't set move_left" );
+	}
+	if( SQ_FAILED( register_global_variable( v, "move_right", 0 ) ) ) {
+		SDL_assert( !"couldn't set move_right" );
+	}
 }
 
 void reload_script() {
@@ -173,11 +203,6 @@ bool init() {
 		cout << "Couldn't load " << path << " font" << SDL_GetError() << endl;
 		return false;
 	}
-	//TTF_SetFontStyle(font, renderstyle);
-	//TTF_SetFontOutline(font, outline);
-	//TTF_SetFontKerning(font, kerning);
-	//TTF_SetFontHinting(font, hinting);
-	// load support for the OGG and MOD sample/music formats
 	
 	int flags=0;
 	int initted=Mix_Init(MIX_INIT_FLAC | MIX_INIT_MOD | MIX_INIT_MP3 | MIX_INIT_OGG);
@@ -225,10 +250,10 @@ bool init() {
 		cout << "Failed to load asz.mp3: " << Mix_GetError() << endl;
 		return false;
 	}	
-	if( Mix_PlayMusic( music, -1 ) == -1 ) {
-		cout << "Error starting music?!?" << endl;
-		return false;
-	}
+	//if( Mix_PlayMusic( music, -1 ) == -1 ) {
+		//cout << "Error starting music?!?" << endl;
+		//return false;
+	//}
 	Mix_VolumeMusic(MIX_MAX_VOLUME);
 
 	path = string( SDL_GetBasePath() );
@@ -257,13 +282,6 @@ bool init() {
 		}
 	}
 
-	path = string( SDL_GetBasePath() );
-	path += "../res/white_triangle.png";
-	SDL_Surface* surface = IMG_Load( path.c_str() );
-	SDL_DestroyTexture( triangle_sprite );
-	triangle_sprite = SDL_CreateTextureFromSurface(renderer, surface);
-	SDL_FreeSurface(surface);
-
 	setup_scripting();
 
 	return success;
@@ -279,6 +297,9 @@ void handle_keys( SDL_Event& e ) {
 		if( key.sym == SDLK_SPACE ) {
 			Mix_PlayChannel( -1, sample, 0 );
 		}
+		if( key.scancode == SDL_SCANCODE_F5 ) {
+			reload_script();
+		}
 	}
 	if( e.type == SDL_TEXTINPUT ) {
 		cout << "Type: " << e.text.text << endl;
@@ -286,8 +307,24 @@ void handle_keys( SDL_Event& e ) {
 }
 
 void poll_keys() {
+
 	const Uint8 *state = SDL_GetKeyboardState(NULL);
-	move_up = state[SDL_SCANCODE_UP];
+	{ // check for up
+		int move_up = state[SDL_SCANCODE_LEFT];
+		sq_pushstring( v, _SC( "move_left" ), -1 );
+		sq_pushinteger( v, move_up );
+		if( SQ_FAILED( sq_newslot( v, -3, SQFalse ) ) ) {
+			SDL_assert( !"Failed to set left in script" );
+		}
+	}
+	{ // check for down
+		int move_down = state[SDL_SCANCODE_RIGHT];
+		sq_pushstring( v, _SC( "move_right" ), -1 );
+		sq_pushinteger( v, move_down );
+		if( SQ_FAILED( sq_newslot( v, -3, SQFalse ) ) ) {
+			SDL_assert( !"Failed to set move_right in script" );
+		}
+	}
 }
 
 void handle_mouse( SDL_Event& e ) {
@@ -352,17 +389,18 @@ void render() {
 		SDL_Rect dest { 0, h*1, w, h };
 		SDL_RenderCopy( renderer, mouse_surface, NULL, &dest );
 	}
-	{ // draw white triangle
-		int w, h;
-		SDL_QueryTexture(triangle_sprite, NULL, NULL, &w, &h);
-		SDL_Rect dest { 200, 200, w, h };
-		SDL_RenderCopy( renderer, triangle_sprite, NULL, &dest );
-	}
 	{ // render background
 		//int w, h;
 		//SDL_QueryTexture(background[ background_frame ], NULL, NULL, &w, &h);
 		SDL_RenderCopy( renderer, background[ background_frame ], NULL, NULL );
 	}
+	{ // render script
+		get_var( v, "render" );
+		sq_pushroottable( v );
+		sq_call( v, 1, SQFalse, SQTrue );// leave closure on stack
+		sq_pop( v, 1 ); // pop Coroutine and process
+	}
+
 }
 
 void update() {
@@ -389,21 +427,14 @@ void update() {
 		last_ticks = current;
 	}
 
-	{ // update background
-
-		if( move_up ) {
-			background_delta += current - background_ticks;
-			//cout << "delta: " << background_delta << endl;
-			if( background_delta > 100 ) {
-				background_delta -= 100;
-				background_frame++;
-				if( background_frame == BACKGROUND_FRAMES ) {
-					background_frame = 0;
-				}
-			}
-		}
-		background_ticks = current;
+	{ // update script
+		get_var( v, "update" );
+		sq_pushroottable( v );
+		sq_pushinteger( v, current );
+		sq_call( v, 2, SQFalse, SQTrue );// leave closure on stack
+		sq_pop( v, 1 ); // pop Coroutine and process
 	}
+
 }
 
 int wmain( int argc, wchar_t *argv[ ], wchar_t *envp[ ] ) {
