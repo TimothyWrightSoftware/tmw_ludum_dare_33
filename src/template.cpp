@@ -377,18 +377,18 @@ void render() {
 		//SDL_SetRenderDrawColor(renderer, 0xFF, 0xFF, 0xFF, 0xFF);
 		SDL_RenderClear(renderer);
 	}
-	{ // draw FPS
-		int w, h;
-		SDL_QueryTexture(fps_surface, NULL, NULL, &w, &h);
-		SDL_Rect dest { 0, h*0, w, h };
-		SDL_RenderCopy( renderer, fps_surface, NULL, &dest );
-	}
-	{ // draw mouse position
-		int w, h;
-		SDL_QueryTexture(mouse_surface, NULL, NULL, &w, &h);
-		SDL_Rect dest { 0, h*1, w, h };
-		SDL_RenderCopy( renderer, mouse_surface, NULL, &dest );
-	}
+	//{ // draw FPS
+		//int w, h;
+		//SDL_QueryTexture(fps_surface, NULL, NULL, &w, &h);
+		//SDL_Rect dest { 0, h*0, w, h };
+		//SDL_RenderCopy( renderer, fps_surface, NULL, &dest );
+	//}
+	//{ // draw mouse position
+		//int w, h;
+		//SDL_QueryTexture(mouse_surface, NULL, NULL, &w, &h);
+		//SDL_Rect dest { 0, h*1, w, h };
+		//SDL_RenderCopy( renderer, mouse_surface, NULL, &dest );
+	//}
 	{ // render background
 		//int w, h;
 		//SDL_QueryTexture(background[ background_frame ], NULL, NULL, &w, &h);
@@ -413,7 +413,7 @@ void update() {
 		if( delta_ticks > 1000 ) {
 			{ // update fps string
 				ostringstream ss;
-				ss << frame_count << " FPS - Relax, cheat, and have fun!!!"; 
+				ss << frame_count << " FPS"; 
 				SDL_Color fgcolor{ 0x00, 0xFF, 0x00, 0xFF };
 				SDL_Color bgcolor{ 0x00, 0x00, 0x00, 0xFF };
 				SDL_Surface* text = TTF_RenderText_Shaded(font, ss.str().c_str(), fgcolor, bgcolor);
