@@ -28,7 +28,7 @@ LIBRARY_FILES	misc/build.bat	/^REM set LIBRARY_FILES=C:\\game_dev\\3rd\\sdl\\dev
 LIBRARY_FILES	misc/build.bat	/^set LIBRARY_FILES=C:\\game_dev\\3rd\\sdl\\dev\\sdl2-2.0.3\\lib\\x64\\sdl2.lib C:\\game_dev\\3rd\\sdl\\dev\\sdl2-2.0.3\\lib\\x64\\sdl2main.lib C:\\game_dev\\3rd\\sdl\\dev\\SDL2_ttf-2.0.12\\lib\\x64\\SDL2_ttf.lib C:\\game_dev\\3rd\\sdl\\dev\\SDL2_mixer-2.0.0\\lib\\x64\\SDL2_mixer.lib C:\\game_dev\\3rd\\sdl\\dev\\sdl2_image-2.0.0\\lib\\x64\\sdl2_image.lib C:\\game_dev\\3rd\\SQUIRREL3\\x64\\Release\\squirrel.lib C:\\game_dev\\3rd\\SQUIRREL3\\x64\\Release\\sqstdlib.lib $/;"	v
 MakeRelativePathsInFlagsAbsolute	.\.ycm_extra_conf.py	/^def MakeRelativePathsInFlagsAbsolute( flags, working_directory ):$/;"	f
 PFLAG	src/mixer_test.cpp	120;"	d	file:
-PFLAG	src/template.cpp	64;"	d	file:
+PFLAG	src/template.cpp	68;"	d	file:
 SCREEN_HEIGHT	.\src\template.cpp	/^const int SCREEN_HEIGHT = 768;$/;"	v
 SCREEN_HEIGHT	src/template.cpp	/^const int SCREEN_HEIGHT = 480;$/;"	v
 SCREEN_WIDTH	.\src\template.cpp	/^const int SCREEN_WIDTH = 1024;$/;"	v
@@ -46,6 +46,8 @@ background_ticks	src/template.cpp	/^Uint32 background_ticks = 0;$/;"	v
 belly_texture	src/template.cpp	/^SDL_Texture* belly_texture = 0;$/;"	v
 bits	src/mixer_test.cpp	/^int len=BUFFER*2*2, done=0, need_refresh=0, bits=0, which=0,$/;"	v
 black	src/mixer_test.cpp	/^Uint32 black,white;$/;"	v
+bus_texture	src/template.cpp	/^SDL_Texture* bus_texture = 0;$/;"	v
+car_texture	src/template.cpp	/^SDL_Texture* car_texture = 0;$/;"	v
 check_file	src/template.cpp	/^void check_file( bool reload ) {  $/;"	f
 cleanExit	src/mixer_test.cpp	/^void cleanExit(char *str,...)$/;"	f
 close	.\src\template.cpp	/^void close() {$/;"	f
@@ -60,10 +62,12 @@ draw_rect	src/template.cpp	/^SQInteger draw_rect( HSQUIRRELVM v ){$/;"	f
 draw_texture	src/template.cpp	/^SQInteger draw_texture( HSQUIRRELVM v ){$/;"	f
 dy	src/mixer_test.cpp	/^float dy;$/;"	v
 errorv	src/mixer_test.cpp	/^void errorv(char *str, va_list ap)$/;"	f
+explode_chunk	src/template.cpp	/^Mix_Chunk* explode_chunk = 0;$/;"	v
 flags	.\.ycm_extra_conf.py	/^flags = [$/;"	v
 flips	src/mixer_test.cpp	/^Uint32 flips=0;$/;"	v
 font	.\src\template.cpp	/^TTF_Font *font = NULL;$/;"	v
 font	src/template.cpp	/^TTF_Font *font = NULL;$/;"	v
+foot_chunk	src/template.cpp	/^Mix_Chunk* foot_chunk = 0;$/;"	v
 fps_surface	.\src\template.cpp	/^SDL_Texture* fps_surface = NULL;$/;"	v
 fps_surface	src/template.cpp	/^SDL_Texture* fps_surface = NULL;$/;"	v
 frame_count	.\src\template.cpp	/^Uint32 frame_count = 0;$/;"	v
@@ -86,6 +90,8 @@ music	src/template.cpp	/^Mix_Music *music = 0;$/;"	v
 need_refresh	src/mixer_test.cpp	/^int len=BUFFER*2*2, done=0, need_refresh=0, bits=0, which=0,$/;"	v
 next_background	src/template.cpp	/^SQInteger next_background( HSQUIRRELVM v ){$/;"	f
 os	.\.ycm_extra_conf.py	/^import os$/;"	i
+piss_chunk	src/template.cpp	/^Mix_Chunk* piss_chunk = 0;$/;"	v
+play_sound	src/template.cpp	/^SQInteger play_sound( HSQUIRRELVM v ) {$/;"	f
 poll_keys	src/template.cpp	/^void poll_keys() {$/;"	f
 position	src/mixer_test.cpp	/^	sample_size=0, position=0, rate=0;$/;"	v
 postmix	src/mixer_test.cpp	/^static void postmix(void *udata, Uint8 *_stream, int _len)$/;"	f	file:
@@ -103,7 +109,6 @@ renderer	.\src\template.cpp	/^SDL_Renderer* renderer = NULL;$/;"	v
 renderer	src/template.cpp	/^SDL_Renderer* renderer = NULL;$/;"	v
 rfoot_texture	src/template.cpp	/^SDL_Texture* rfoot_texture = 0;$/;"	v
 s	src/mixer_test.cpp	/^SDL_Surface *s=NULL;$/;"	v
-sample	src/template.cpp	/^Mix_Chunk* sample = 0;$/;"	v
 sample_size	src/mixer_test.cpp	/^	sample_size=0, position=0, rate=0;$/;"	v
 score_texture	src/template.cpp	/^SDL_Texture* score_texture = 0;$/;"	v
 setup_scripting	src/template.cpp	/^void setup_scripting() {$/;"	f

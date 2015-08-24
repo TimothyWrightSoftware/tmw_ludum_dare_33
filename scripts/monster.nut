@@ -64,6 +64,7 @@ function generate_explosion( x, y ) {
 		v.dy = ( rand() / RAND_MAX.tofloat() ) * 2.0 - 1.0;
 		v.t = (rand() / RAND_MAX.tofloat()) * 2.0;
 	}
+	play_sound( 2 );
 }
 
 function generate_pee() {
@@ -77,6 +78,7 @@ function generate_pee() {
 		};	
 		piss.append( pee );
 	}	
+	play_sound( 1 );
 }
 
 function update( current ) {
@@ -84,6 +86,7 @@ function update( current ) {
 	if( background_ticks == null ) {
 		background_ticks = current;
 	}
+
 	local delta = current - background_ticks;
 	if( made_it ) {
 		shore_line += 0.12 * delta;
@@ -109,8 +112,8 @@ function update( current ) {
 			pee.dx *= 0.99;
 			pee.dy *= 0.95;
 			if( pee.x < 0 || pee.x > screen_width )
-				pee.dx = -pee.dx
-			/*return pee.x > 0 && pee.x < screen_width && pee.y >0 && pee.y < screen_height;*/
+			pee.dx = -pee.dx
+		/*return pee.x > 0 && pee.x < screen_width && pee.y >0 && pee.y < screen_height;*/
 			return true;
 		});
 	} 
@@ -126,7 +129,7 @@ function update( current ) {
 		if( current - background_ticks > 20 ) {
 			delta = 20;	
 		}
-		piss_meter += 0.0020 * delta; // <- this is the good one
+		piss_meter += 0.002 * delta; // <- this is the good one
 		if( !made_it && piss_meter >= 100 ) {
 			if( !game_over )
 				generate_pee();
@@ -142,7 +145,7 @@ function update( current ) {
 		background_delta += delta;
 
 
-		water_meter += 0.0040 * delta; // <- this is the good one
+		water_meter += 0.0025 * delta; // <- this is the good one
 		if( background_delta > 100 ) {
 			background_delta -= 100;
 			if( true ) next_background();
@@ -152,6 +155,7 @@ function update( current ) {
 		if( !left_foot.forward ) {
 			if( left_foot.y > screen_height - left_foot.h ) {
 				left_foot.forward = !left_foot.forward;
+				play_sound( 3 );
 			} else {
 				left_foot.y += left_foot.delta;
 			}
@@ -166,6 +170,7 @@ function update( current ) {
 		if( !right_foot.forward ) {
 			if( right_foot.y > screen_height - right_foot.h ) {
 				right_foot.forward = !right_foot.forward;
+				play_sound( 3 );
 			} else {
 				right_foot.y += right_foot.delta;
 			}
@@ -223,9 +228,6 @@ function update( current ) {
 				y = 0,
 				w = 30,
 				h = rand() % 5 == 0 ? 150 : 50,
-				r = 0xFF,
-				g = 0xFF,
-				b = 0xFF,
 			};
 			car.y -= car.h;
 			cars.append( car );
@@ -261,19 +263,19 @@ function contains( a, b ) {
 	return true;
 }
 
-function reset_game() {
-	println( "In reset" );
-}
-
 function render() {
-	
+
 	// hide red dot
 	draw_rect( 320, 320, 50, 50, 0x99, 0x99, 0x99, 0xFF );
 
 	if( !game_over ) {
 
 		foreach( i, car in cars ) {
-			draw_rect( car.x, car.y, car.w, car.h, car.r, car.g, car.b, 0xFF );
+			if( car.h == 50 ) {
+				draw_texture( 4, car.x, car.y, car.w, car.h );
+			} else {
+				draw_texture( 5, car.x, car.y, car.w, car.h );
+			}
 		}
 
 		draw_texture( 3, left_foot.x, left_foot.y, 100, 400 );
@@ -320,6 +322,7 @@ function render() {
 	} 
 
 	// render belly
-	draw_texture( 1, 150, 300, 400, 200 );
+	local bx = (left_foot.x + (right_foot.x + right_foot.w) ) / 4.0;
+	draw_texture( 1, bx, 300, 400, 200 );
 
 }

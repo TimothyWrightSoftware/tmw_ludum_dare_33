@@ -46,7 +46,9 @@ SDL_Texture* mouse_surface = NULL;
 
 // sound stuff
 Mix_Music *music = 0;
-Mix_Chunk* sample = 0;
+Mix_Chunk* foot_chunk = 0;
+Mix_Chunk* explode_chunk = 0;
+Mix_Chunk* piss_chunk = 0;
 
 // sprite stuff
 SDL_Texture* background[ BACKGROUND_FRAMES ] = {0};
@@ -59,6 +61,8 @@ SDL_Texture* score_texture = 0;
 SDL_Texture* belly_texture = 0;
 SDL_Texture* lfoot_texture = 0;
 SDL_Texture* rfoot_texture = 0;
+SDL_Texture* car_texture = 0;
+SDL_Texture* bus_texture = 0;
 
 void print_init_flags(int flags) {
 #define PFLAG(a) if(flags&MIX_INIT_##a) printf(#a " ")
@@ -84,6 +88,12 @@ SQInteger draw_texture( HSQUIRRELVM v ){
 		}
 		if( value == 3 ) {
 			texture = lfoot_texture;
+		}
+		if( value == 4 ) {
+			texture = car_texture;
+		}
+		if( value == 5 ) {
+			texture = bus_texture;
 		}
 	}
 	if( SQ_SUCCEEDED( sq_getinteger( v, -4, &value ) ) ) {
@@ -165,12 +175,28 @@ SQInteger update_score( HSQUIRRELVM v ) {
 	return 0;
 }
 
+SQInteger play_sound( HSQUIRRELVM v ) {
+	SQInteger value = 0;
+	sq_getinteger( v, -1, &value );
+	if( value == 1 ) {
+		Mix_PlayChannel( -1, foot_chunk, 0 );
+	}
+	if( value == 2 ) {
+		Mix_PlayChannel( -1, explode_chunk, 0 );
+	}
+	if( value == 1 ) {
+		Mix_PlayChannel( -1, piss_chunk, 0 );
+	}
+	return 0;
+}
+
 void register_global_functions() {
 	register_global_func( v, next_background, "next_background" );
 	register_global_func( v, prev_background, "prev_background" );
 	register_global_func( v, draw_rect, "draw_rect" );
 	register_global_func( v, update_score, "update_score" );
 	register_global_func( v, draw_texture, "draw_texture" );
+	register_global_func( v, play_sound, "play_sound" );
 }
 
 void register_global_variables() {
@@ -184,7 +210,7 @@ void register_global_variables() {
 
 void reload_script() {
 	cout << "here we will reload the script" << endl;
-	if(SQ_FAILED(sqstd_dofile(v, _SC("../scripts/monster.nut"), SQFalse, SQTrue))) {
+	if(SQ_FAILED(sqstd_dofile(v, _SC("scripts/monster.nut"), SQFalse, SQTrue))) {
 		cout << "F'in problem loading script." << endl;
 	} 
 }
@@ -193,7 +219,7 @@ void check_file( bool reload ) {
 	FILETIME creation_time;
 	FILETIME last_access;
 	FILETIME new_last_write;
-	HANDLE file = CreateFile( "../scripts/monster.nut", 0, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL );
+	HANDLE file = CreateFile( "scripts/monster.nut", 0, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL );
 	if( GetFileTime( file, &creation_time, &last_access, &new_last_write ) ) {
 		if( CompareFileTime( &new_last_write, &last_write ) > 0 ) {
 			last_write = new_last_write;
@@ -221,7 +247,7 @@ void setup_scripting() {
 	sqstd_register_mathlib(v);
 	sqstd_register_stringlib(v);
 
-	if(SQ_FAILED(sqstd_dofile(v, _SC("../scripts/startup.nut"), SQFalse, SQTrue))) {
+	if(SQ_FAILED(sqstd_dofile(v, _SC("scripts/startup.nut"), SQFalse, SQTrue))) {
 		cout << "F'in problem loading startup.nut." << endl;
 	} 
 
@@ -250,7 +276,7 @@ bool init() {
     }
 
 	string path( SDL_GetBasePath() );
-	path += "../res/sansation.ttf";
+	path += "res/sansation.ttf";
 	font = TTF_OpenFont(path.c_str(), FONT_POINT_SIZE);
 	if ( font == NULL ) {
 		cout << "Couldn't load " << path << " font" << SDL_GetError() << endl;
@@ -297,23 +323,34 @@ bool init() {
 
 	// load the MP3 file "music.mp3" to play as music
 	path = string( SDL_GetBasePath() );
-	path += "../res/proj1.wav";
+	path += "res/proj1.wav";
 	music=Mix_LoadMUS( path.c_str() );
 	if(!music) {
 		cout << "Failed to load asz.mp3: " << Mix_GetError() << endl;
 		return false;
 	}	
-	//if( Mix_PlayMusic( music, -1 ) == -1 ) {
-		//cout << "Error starting music?!?" << endl;
-		//return false;
-	//}
-	Mix_VolumeMusic(MIX_MAX_VOLUME);
 
 	path = string( SDL_GetBasePath() );
-	path += "../res/blip.wav";
-	sample = Mix_LoadWAV( path.c_str() );
-	if( !sample ) {
-		cout << "error loading sample" << endl;
+	path += "res/foot_stomp.wav";
+	foot_chunk = Mix_LoadWAV( path.c_str() );
+	if( !foot_chunk ) {
+		cout << "error loading foot_chunk" << endl;
+		return false;
+	}
+
+	path = string( SDL_GetBasePath() );
+	path += "res/explosion.wav";
+	explode_chunk = Mix_LoadWAV( path.c_str() );
+	if( !explode_chunk ) {
+		cout << "error loading explode_chunk" << endl;
+		return false;
+	}
+
+	path = string( SDL_GetBasePath() );
+	path += "res/piss.wav";
+	piss_chunk = Mix_LoadWAV( path.c_str() );
+	if( !piss_chunk ) {
+		cout << "error loading piss_chunk" << endl;
 		return false;
 	}
 
@@ -321,9 +358,9 @@ bool init() {
 		for( int i = 0; i < BACKGROUND_FRAMES; ++i ) {
 			ostringstream ss;
 			if( i < 10 )
-				ss << "../res/moving_grid_Animation 1_0" << i << ".png";
+				ss << "res/moving_grid_Animation 1_0" << i << ".png";
 			else
-				ss << "../res/moving_grid_Animation 1_" << i << ".png";
+				ss << "res/moving_grid_Animation 1_" << i << ".png";
 			path = string( SDL_GetBasePath() );
 			path += ss.str(); 
 			SDL_Surface* surface = IMG_Load( path.c_str() );
@@ -337,7 +374,7 @@ bool init() {
 
 	{ // load belly
 		path = string( SDL_GetBasePath() );
-		path += "../res/belly.png";
+		path += "res/belly.png";
 		SDL_Surface* surface = IMG_Load( path.c_str() );
 		SDL_assert( surface );
 		belly_texture = SDL_CreateTextureFromSurface(renderer, surface);
@@ -346,7 +383,7 @@ bool init() {
 
 	{ // load l foot
 		path = string( SDL_GetBasePath() );
-		path += "../res/lfoot.png";
+		path += "res/lfoot.png";
 		SDL_Surface* surface = IMG_Load( path.c_str() );
 		SDL_assert( surface );
 		lfoot_texture = SDL_CreateTextureFromSurface(renderer, surface);
@@ -355,10 +392,28 @@ bool init() {
 
 	{ // load right foot
 		path = string( SDL_GetBasePath() );
-		path += "../res/rfoot.png";
+		path += "res/rfoot.png";
 		SDL_Surface* surface = IMG_Load( path.c_str() );
 		SDL_assert( surface );
 		rfoot_texture = SDL_CreateTextureFromSurface(renderer, surface);
+		SDL_FreeSurface(surface);
+	}
+
+	{ // load car
+		path = string( SDL_GetBasePath() );
+		path += "res/car.png";
+		SDL_Surface* surface = IMG_Load( path.c_str() );
+		SDL_assert( surface );
+		car_texture = SDL_CreateTextureFromSurface(renderer, surface);
+		SDL_FreeSurface(surface);
+	}
+
+	{ // load bus
+		path = string( SDL_GetBasePath() );
+		path += "res/bus.png";
+		SDL_Surface* surface = IMG_Load( path.c_str() );
+		SDL_assert( surface );
+		bus_texture = SDL_CreateTextureFromSurface(renderer, surface);
 		SDL_FreeSurface(surface);
 	}
 
@@ -373,9 +428,11 @@ void handle_keys( SDL_Event& e ) {
 		auto& key = e.key.keysym;
 		if( key.mod & KMOD_CTRL ) cout << "ctrl, ";
 		if( key.mod & KMOD_ALT ) cout << "alt, ";
-		if( key.sym == SDLK_RETURN ) cout << "RETURN: " << endl;
-		if( key.sym == SDLK_SPACE ) {
-			Mix_PlayChannel( -1, sample, 0 );
+		if( key.sym == SDLK_RETURN ) {
+			get_var( v, "on_enter" );
+			sq_pushroottable( v );
+			sq_call( v, 1, SQFalse, SQTrue );// leave closure on stack
+			sq_pop( v, 1 ); // pop Coroutine and process
 		}
 		if( key.scancode == SDL_SCANCODE_F5 ) {
 			reload_script();
@@ -441,9 +498,13 @@ void handle_mouse( SDL_Event& e ) {
 
 void close() {
 
+	Mix_HaltChannel( -1 );
+	Mix_HaltMusic();
     TTF_CloseFont(font);
 	Mix_FreeMusic(music);
-	Mix_FreeChunk( sample );
+	Mix_FreeChunk( foot_chunk );
+	Mix_FreeChunk( explode_chunk );
+	Mix_FreeChunk( piss_chunk );
 	Mix_CloseAudio();
 	SDL_DestroyRenderer( renderer );
 	SDL_DestroyWindow( window );
@@ -512,7 +573,6 @@ void update() {
 		} 
 		last_ticks = current;
 	}
-
 	{ // update script
 		get_var( v, "update" );
 		sq_pushroottable( v );
@@ -530,6 +590,12 @@ int wmain( int argc, wchar_t *argv[ ], wchar_t *envp[ ] ) {
 	} else {
 
 		bool quit = false;
+
+		Mix_VolumeMusic(MIX_MAX_VOLUME);
+		if( Mix_PlayMusic( music, -1 ) == -1 ) {
+			cout << "Error starting music?!?" << endl;
+			return false;
+		}
 
 		last_ticks = SDL_GetTicks();
 		srand( last_ticks );
